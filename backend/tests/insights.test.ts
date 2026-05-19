@@ -10,60 +10,74 @@ describe('Salary Insights Endpoints', () => {
     await prisma.employee.createMany({
       data: [
         {
-          name: 'Alice Johnson',
+          fullName: 'Alice Johnson',
           email: 'alice@example.com',
-          department: 'Engineering',
+          department: 'ENGINEERING',
           salary: 120000,
           country: 'USA',
           jobTitle: 'Senior Engineer',
+          joiningDate: new Date('2023-01-15'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Bob Smith',
+          fullName: 'Bob Smith',
           email: 'bob@example.com',
-          department: 'Engineering',
+          department: 'ENGINEERING',
           salary: 90000,
           country: 'USA',
           jobTitle: 'Engineer',
+          joiningDate: new Date('2023-03-20'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Charlie Brown',
+          fullName: 'Charlie Brown',
           email: 'charlie@example.com',
-          department: 'Marketing',
+          department: 'MARKETING',
           salary: 75000,
           country: 'USA',
           jobTitle: 'Marketing Manager',
+          joiningDate: new Date('2023-02-10'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Diana Prince',
+          fullName: 'Diana Prince',
           email: 'diana@example.com',
-          department: 'Engineering',
+          department: 'ENGINEERING',
           salary: 150000,
           country: 'UK',
           jobTitle: 'Senior Engineer',
+          joiningDate: new Date('2022-11-05'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Eve Davis',
+          fullName: 'Eve Davis',
           email: 'eve@example.com',
-          department: 'Engineering',
+          department: 'ENGINEERING',
           salary: 85000,
           country: 'UK',
           jobTitle: 'Engineer',
+          joiningDate: new Date('2023-04-12'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Frank Miller',
+          fullName: 'Frank Miller',
           email: 'frank@example.com',
-          department: 'Sales',
+          department: 'SALES',
           salary: 65000,
           country: 'Canada',
           jobTitle: 'Sales Representative',
+          joiningDate: new Date('2023-05-08'),
+          employmentType: 'FULL_TIME',
         },
         {
-          name: 'Grace Lee',
+          fullName: 'Grace Lee',
           email: 'grace@example.com',
-          department: 'Engineering',
+          department: 'ENGINEERING',
           salary: 95000,
           country: 'Canada',
           jobTitle: 'Engineer',
+          joiningDate: new Date('2023-06-01'),
+          employmentType: 'FULL_TIME',
         },
       ],
     });
@@ -160,12 +174,14 @@ describe('Salary Insights Endpoints', () => {
       it('should calculate correct average when multiple employees have same job title', async () => {
         await prisma.employee.create({
           data: {
-            name: 'Henry Wilson',
+            fullName: 'Henry Wilson',
             email: 'henry@example.com',
-            department: 'Engineering',
+            department: 'ENGINEERING',
             salary: 100000,
             country: 'USA',
             jobTitle: 'Engineer',
+            joiningDate: new Date('2023-07-15'),
+            employmentType: 'FULL_TIME',
           },
         });
 
@@ -197,12 +213,14 @@ describe('Salary Insights Endpoints', () => {
         await prisma.employee.deleteMany({});
         await prisma.employee.create({
           data: {
-            name: 'Solo Employee',
+            fullName: 'Solo Employee',
             email: 'solo@example.com',
-            department: 'Engineering',
+            department: 'ENGINEERING',
             salary: 100000,
             country: 'Australia',
             jobTitle: 'Engineer',
+            joiningDate: new Date('2023-08-01'),
+            employmentType: 'FULL_TIME',
           },
         });
 
@@ -228,12 +246,14 @@ describe('Salary Insights Endpoints', () => {
       it('should handle country with special characters in name', async () => {
         await prisma.employee.create({
           data: {
-            name: 'Test Employee',
+            fullName: 'Test Employee',
             email: 'test@example.com',
-            department: 'Engineering',
+            department: 'ENGINEERING',
             salary: 80000,
             country: "Côte d'Ivoire",
             jobTitle: 'Engineer',
+            joiningDate: new Date('2023-09-01'),
+            employmentType: 'FULL_TIME',
           },
         });
 
@@ -256,12 +276,14 @@ describe('Salary Insights Endpoints', () => {
       it('should handle employees with null job titles', async () => {
         await prisma.employee.create({
           data: {
-            name: 'No Title Employee',
+            fullName: 'No Title Employee',
             email: 'notitle@example.com',
-            department: 'Engineering',
+            department: 'ENGINEERING',
             salary: 70000,
             country: 'USA',
-            jobTitle: null,
+            jobTitle: 'Unknown',
+            joiningDate: new Date('2023-10-01'),
+            employmentType: 'FULL_TIME',
           },
         });
 
@@ -269,7 +291,7 @@ describe('Salary Insights Endpoints', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.employeeCount).toBe(4);
-        expect(response.body.avgSalary).toBe(90000);
+        expect(response.body.avgSalary).toBe(88750);
       });
 
       it('should calculate correct statistics with decimal salaries', async () => {
@@ -277,20 +299,24 @@ describe('Salary Insights Endpoints', () => {
         await prisma.employee.createMany({
           data: [
             {
-              name: 'Employee 1',
+              fullName: 'Employee 1',
               email: 'emp1@example.com',
-              department: 'Engineering',
+              department: 'ENGINEERING',
               salary: 100000.5,
               country: 'USA',
               jobTitle: 'Engineer',
+              joiningDate: new Date('2023-11-01'),
+              employmentType: 'FULL_TIME',
             },
             {
-              name: 'Employee 2',
+              fullName: 'Employee 2',
               email: 'emp2@example.com',
-              department: 'Engineering',
+              department: 'ENGINEERING',
               salary: 100000.5,
               country: 'USA',
               jobTitle: 'Engineer',
+              joiningDate: new Date('2023-11-02'),
+              employmentType: 'FULL_TIME',
             },
           ],
         });
@@ -410,31 +436,35 @@ describe('Salary Insights Endpoints', () => {
       it('should handle employees with null job titles', async () => {
         await prisma.employee.create({
           data: {
-            name: 'No Title Employee',
-            email: 'notitle@example.com',
-            department: 'Engineering',
+            fullName: 'No Title Employee',
+            email: 'notitle2@example.com',
+            department: 'ENGINEERING',
             salary: 70000,
             country: 'USA',
-            jobTitle: null,
+            jobTitle: 'Unknown',
+            joiningDate: new Date('2023-12-01'),
+            employmentType: 'FULL_TIME',
           },
         });
 
         const response = await request(app).get('/insights/job-title');
 
         expect(response.status).toBe(200);
-        expect(response.body.length).toBe(4);
+        expect(response.body.length).toBe(5);
       });
 
       it('should calculate correct statistics when job title has single employee', async () => {
         await prisma.employee.deleteMany({});
         await prisma.employee.create({
           data: {
-            name: 'Unique Title',
+            fullName: 'Unique Title',
             email: 'unique@example.com',
-            department: 'Engineering',
+            department: 'ENGINEERING',
             salary: 125000,
             country: 'USA',
             jobTitle: 'Principal Engineer',
+            joiningDate: new Date('2023-12-15'),
+            employmentType: 'FULL_TIME',
           },
         });
 
@@ -463,20 +493,24 @@ describe('Salary Insights Endpoints', () => {
         await prisma.employee.createMany({
           data: [
             {
-              name: 'Employee 1',
-              email: 'emp1@example.com',
-              department: 'Engineering',
+              fullName: 'Employee 1',
+              email: 'emp1dec@example.com',
+              department: 'ENGINEERING',
               salary: 100000.33,
               country: 'USA',
               jobTitle: 'Engineer',
+              joiningDate: new Date('2024-01-01'),
+              employmentType: 'FULL_TIME',
             },
             {
-              name: 'Employee 2',
-              email: 'emp2@example.com',
-              department: 'Engineering',
+              fullName: 'Employee 2',
+              email: 'emp2dec@example.com',
+              department: 'ENGINEERING',
               salary: 100000.67,
               country: 'USA',
               jobTitle: 'Engineer',
+              joiningDate: new Date('2024-01-02'),
+              employmentType: 'FULL_TIME',
             },
           ],
         });
@@ -493,12 +527,14 @@ describe('Salary Insights Endpoints', () => {
       it('should handle large salary values correctly', async () => {
         await prisma.employee.create({
           data: {
-            name: 'High Earner',
+            fullName: 'High Earner',
             email: 'high@example.com',
-            department: 'Executive',
+            department: 'ENGINEERING',
             salary: 999999.99,
             country: 'USA',
             jobTitle: 'CEO',
+            joiningDate: new Date('2024-02-01'),
+            employmentType: 'FULL_TIME',
           },
         });
 

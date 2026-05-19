@@ -1,9 +1,11 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import employeeRoutes from './routes/employee.routes';
+import salaryInsightsRoutes from './routes/salary-insights.routes';
+import { AppError } from './utils/error-handler';
 
 dotenv.config();
 
@@ -21,6 +23,16 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 app.use(employeeRoutes);
+app.use(salaryInsightsRoutes);
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
+
+  console.error('Unhandled error:', err);
+  return res.status(500).json({ error: 'Internal server error' });
+});
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
