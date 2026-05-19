@@ -6,3 +6,27 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Employee {
+  id             String   @id @default(cuid())
+  fullName       String
+  email          String   @unique
+  department     String
+  jobTitle       String
+  country        String
+  salary         Float
+  currency       String   @default("USD")
+  joiningDate    DateTime
+  employmentType String
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([email])
+  @@index([department])
+  @@index([status])
+  @@index([department, status])
+  @@index([joiningDate])
+  @@index([country])
+  @@map("employees")
+}
