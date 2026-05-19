@@ -920,3 +920,564 @@ describe('GET /employees', () => {
     });
   });
 });
+
+describe('PUT /employees/:id', () => {
+  describe('Validation - Required Fields', () => {
+    it('should return 400 when name is missing', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('name');
+    });
+
+    it('should return 400 when email is missing', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('email');
+    });
+
+    it('should return 400 when department is missing', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('department');
+    });
+
+    it('should return 400 when salary is missing', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('salary');
+    });
+
+    it('should return 400 when all fields are missing', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+  });
+
+  describe('Validation - Email Format', () => {
+    it('should return 400 when email format is invalid - missing @', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'invalidemail.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('email');
+    });
+
+    it('should return 400 when email format is invalid - missing domain', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('email');
+    });
+
+    it('should return 400 when email is empty string', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: '',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('email');
+    });
+  });
+
+  describe('Validation - Salary', () => {
+    it('should return 400 when salary is 0', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 0,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('salary');
+    });
+
+    it('should return 400 when salary is negative', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: -5000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('salary');
+    });
+
+    it('should return 400 when salary is not a number', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 'invalid',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('salary');
+    });
+  });
+
+  describe('Validation - ID Parameter', () => {
+    it('should return 400 when ID is not a valid number', async () => {
+      const response = await request(app).put('/employees/invalid-id').send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+
+    it('should return 400 when ID is negative', async () => {
+      const response = await request(app).put('/employees/-1').send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+
+    it('should return 400 when ID is zero', async () => {
+      const response = await request(app).put('/employees/0').send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+  });
+
+  describe('Not Found Handling', () => {
+    it('should return 404 when employee does not exist', async () => {
+      const response = await request(app).put('/employees/999999').send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('not found');
+    });
+
+    it('should return 404 with proper error structure', async () => {
+      const response = await request(app).put('/employees/999999').send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 80000,
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+      expect(typeof (response.body as { error: string }).error).toBe('string');
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+  });
+
+  describe('Success Cases', () => {
+    it('should return 200 and update employee successfully', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const updateData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 85000,
+      };
+
+      const response = await request(app).put(`/employees/${employeeId}`).send(updateData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('id', employeeId);
+      expect(response.body).toHaveProperty('name', updateData.name);
+      expect(response.body).toHaveProperty('email', updateData.email);
+      expect(response.body).toHaveProperty('department', updateData.department);
+      expect(response.body).toHaveProperty('salary', updateData.salary);
+      expect(response.body).toHaveProperty('createdAt');
+    });
+
+    it('should update employee with minimum valid salary', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const updateData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 0.01,
+      };
+
+      const response = await request(app).put(`/employees/${employeeId}`).send(updateData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('salary', updateData.salary);
+    });
+
+    it('should update employee with optional country field', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+        country: 'USA',
+      });
+      const employeeId = createResponse.body.id;
+
+      const updateData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 85000,
+        country: 'Canada',
+      };
+
+      const response = await request(app).put(`/employees/${employeeId}`).send(updateData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('country', updateData.country);
+    });
+
+    it('should persist updated data when fetching employee', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const updateData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 85000,
+      };
+
+      await request(app).put(`/employees/${employeeId}`).send(updateData);
+
+      const getResponse = await request(app).get('/employees');
+      const updatedEmployee = getResponse.body.data.find((e: any) => e.id === employeeId);
+
+      expect(updatedEmployee).toBeDefined();
+      expect(updatedEmployee.name).toBe(updateData.name);
+      expect(updatedEmployee.email).toBe(updateData.email);
+      expect(updatedEmployee.department).toBe(updateData.department);
+      expect(updatedEmployee.salary).toBe(updateData.salary);
+    });
+
+    it('should return JSON content type for success response', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Original Name',
+        email: 'original@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).put(`/employees/${employeeId}`).send({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        department: 'Marketing',
+        salary: 85000,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+  });
+});
+
+describe('DELETE /employees/:id', () => {
+  describe('Validation - ID Parameter', () => {
+    it('should return 400 when ID is not a valid number', async () => {
+      const response = await request(app).delete('/employees/invalid-id');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+
+    it('should return 400 when ID is negative', async () => {
+      const response = await request(app).delete('/employees/-1');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+
+    it('should return 400 when ID is zero', async () => {
+      const response = await request(app).delete('/employees/0');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('id');
+    });
+  });
+
+  describe('Not Found Handling', () => {
+    it('should return 404 when employee does not exist', async () => {
+      const response = await request(app).delete('/employees/999999');
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+      expect((response.body as { error: string }).error).toContain('not found');
+    });
+
+    it('should return 404 with proper error structure', async () => {
+      const response = await request(app).delete('/employees/999999');
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+      expect(typeof (response.body as { error: string }).error).toBe('string');
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+  });
+
+  describe('Success Cases', () => {
+    it('should return 204 when employee is deleted successfully', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'To Be Deleted',
+        email: 'delete@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const response = await request(app).delete(`/employees/${employeeId}`);
+
+      expect(response.status).toBe(204);
+      expect(response.body).toEqual({});
+    });
+
+    it('should remove employee from database after deletion', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'To Be Deleted',
+        email: 'delete@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      await request(app).delete(`/employees/${employeeId}`);
+
+      const getResponse = await request(app).get('/employees');
+      const deletedEmployee = getResponse.body.data.find((e: any) => e.id === employeeId);
+
+      expect(deletedEmployee).toBeUndefined();
+    });
+
+    it('should return 404 when trying to delete the same employee twice', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'To Be Deleted',
+        email: 'delete@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const firstDelete = await request(app).delete(`/employees/${employeeId}`);
+      expect(firstDelete.status).toBe(204);
+
+      const secondDelete = await request(app).delete(`/employees/${employeeId}`);
+      expect(secondDelete.status).toBe(404);
+      expect(secondDelete.body).toHaveProperty('error');
+    });
+
+    it('should not affect other employees when deleting one', async () => {
+      const employee1 = await request(app).post('/employees').send({
+        name: 'Employee 1',
+        email: 'emp1@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employee2 = await request(app).post('/employees').send({
+        name: 'Employee 2',
+        email: 'emp2@example.com',
+        department: 'Marketing',
+        salary: 65000,
+      });
+
+      await request(app).delete(`/employees/${employee1.body.id}`);
+
+      const getResponse = await request(app).get('/employees');
+      const remainingEmployee = getResponse.body.data.find((e: any) => e.id === employee2.body.id);
+
+      expect(remainingEmployee).toBeDefined();
+      expect(remainingEmployee.name).toBe('Employee 2');
+    });
+
+    it('should handle deletion with deterministic behavior', async () => {
+      const createResponse = await request(app).post('/employees').send({
+        name: 'Deterministic Delete',
+        email: 'deterministic@example.com',
+        department: 'Engineering',
+        salary: 75000,
+      });
+      const employeeId = createResponse.body.id;
+
+      const beforeCount = (await request(app).get('/employees')).body.pagination.total;
+
+      await request(app).delete(`/employees/${employeeId}`);
+
+      const afterCount = (await request(app).get('/employees')).body.pagination.total;
+
+      expect(afterCount).toBe(beforeCount - 1);
+    });
+  });
+});
