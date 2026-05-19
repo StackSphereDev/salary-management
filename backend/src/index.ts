@@ -22,10 +22,10 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use(employeeRoutes);
-app.use(salaryInsightsRoutes);
+app.use('/api', employeeRoutes);
+app.use('/api', salaryInsightsRoutes);
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ error: err.message });
   }

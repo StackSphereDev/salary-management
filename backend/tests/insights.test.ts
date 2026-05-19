@@ -83,10 +83,10 @@ describe('Salary Insights Endpoints', () => {
     });
   });
 
-  describe('GET /insights/country/:country', () => {
+  describe('GET /api/insights/country/:country', () => {
     describe('Success Cases', () => {
       it('should return salary insights for USA', async () => {
-        const response = await request(app).get('/insights/country/USA');
+        const response = await request(app).get('/api/insights/country/USA');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('country', 'USA');
@@ -97,7 +97,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return salary insights for UK', async () => {
-        const response = await request(app).get('/insights/country/UK');
+        const response = await request(app).get('/api/insights/country/UK');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('country', 'UK');
@@ -108,7 +108,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return salary insights for Canada', async () => {
-        const response = await request(app).get('/insights/country/Canada');
+        const response = await request(app).get('/api/insights/country/Canada');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('country', 'Canada');
@@ -119,7 +119,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should include average salary by job title for USA', async () => {
-        const response = await request(app).get('/insights/country/USA');
+        const response = await request(app).get('/api/insights/country/USA');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('avgSalaryByJobTitle');
@@ -149,7 +149,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should include average salary by job title for UK', async () => {
-        const response = await request(app).get('/insights/country/UK');
+        const response = await request(app).get('/api/insights/country/UK');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('avgSalaryByJobTitle');
@@ -185,7 +185,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/country/USA');
+        const response = await request(app).get('/api/insights/country/USA');
 
         expect(response.status).toBe(200);
         expect(response.body.avgSalary).toBe(96250);
@@ -202,7 +202,7 @@ describe('Salary Insights Endpoints', () => {
 
     describe('Edge Cases', () => {
       it('should return 404 when country has no employees', async () => {
-        const response = await request(app).get('/insights/country/Germany');
+        const response = await request(app).get('/api/insights/country/Germany');
 
         expect(response.status).toBe(404);
         expect(response.body).toHaveProperty('error');
@@ -224,7 +224,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/country/Australia');
+        const response = await request(app).get('/api/insights/country/Australia');
 
         expect(response.status).toBe(200);
         expect(response.body.minSalary).toBe(100000);
@@ -237,7 +237,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should handle country parameter with different casing', async () => {
-        const response = await request(app).get('/insights/country/usa');
+        const response = await request(app).get('/api/insights/country/usa');
 
         expect(response.status).toBe(200);
         expect(response.body.country).toBe('USA');
@@ -257,7 +257,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get("/insights/country/Côte d'Ivoire");
+        const response = await request(app).get("/api/insights/country/Côte d'Ivoire");
 
         expect(response.status).toBe(200);
         expect(response.body.country).toBe("Côte d'Ivoire");
@@ -267,8 +267,8 @@ describe('Salary Insights Endpoints', () => {
 
     describe('Data Integrity', () => {
       it('should return deterministic results for same dataset', async () => {
-        const response1 = await request(app).get('/insights/country/USA');
-        const response2 = await request(app).get('/insights/country/USA');
+        const response1 = await request(app).get('/api/insights/country/USA');
+        const response2 = await request(app).get('/api/insights/country/USA');
 
         expect(response1.body).toEqual(response2.body);
       });
@@ -287,7 +287,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/country/USA');
+        const response = await request(app).get('/api/insights/country/USA');
 
         expect(response.status).toBe(200);
         expect(response.body.employeeCount).toBe(4);
@@ -321,7 +321,7 @@ describe('Salary Insights Endpoints', () => {
           ],
         });
 
-        const response = await request(app).get('/insights/country/USA');
+        const response = await request(app).get('/api/insights/country/USA');
 
         expect(response.status).toBe(200);
         expect(response.body.minSalary).toBe(100000.5);
@@ -331,10 +331,10 @@ describe('Salary Insights Endpoints', () => {
     });
   });
 
-  describe('GET /insights/job-title', () => {
+  describe('GET /api/insights/job-title', () => {
     describe('Success Cases', () => {
       it('should return salary insights for all job titles', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
@@ -342,7 +342,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return correct insights for Engineer job title', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -355,7 +355,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return correct insights for Senior Engineer job title', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -370,7 +370,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return correct insights for Marketing Manager job title', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -385,7 +385,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return correct insights for Sales Representative job title', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -400,7 +400,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should include all unique job titles in response', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(4);
@@ -413,7 +413,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should sort results by job title alphabetically', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -427,7 +427,7 @@ describe('Salary Insights Endpoints', () => {
       it('should return empty array when no employees exist', async () => {
         await prisma.employee.deleteMany({});
 
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual([]);
@@ -447,7 +447,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(5);
@@ -468,7 +468,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(1);
@@ -482,8 +482,8 @@ describe('Salary Insights Endpoints', () => {
 
     describe('Data Integrity', () => {
       it('should return deterministic results for same dataset', async () => {
-        const response1 = await request(app).get('/insights/job-title');
-        const response2 = await request(app).get('/insights/job-title');
+        const response1 = await request(app).get('/api/insights/job-title');
+        const response2 = await request(app).get('/api/insights/job-title');
 
         expect(response1.body).toEqual(response2.body);
       });
@@ -515,7 +515,7 @@ describe('Salary Insights Endpoints', () => {
           ],
         });
 
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(1);
@@ -538,7 +538,7 @@ describe('Salary Insights Endpoints', () => {
           },
         });
 
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -552,7 +552,7 @@ describe('Salary Insights Endpoints', () => {
 
     describe('Response Structure', () => {
       it('should return proper response structure for each job title', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
 
@@ -577,7 +577,7 @@ describe('Salary Insights Endpoints', () => {
       });
 
       it('should return JSON content type', async () => {
-        const response = await request(app).get('/insights/job-title');
+        const response = await request(app).get('/api/insights/job-title');
 
         expect(response.status).toBe(200);
         expect(response.headers['content-type']).toMatch(/json/);
