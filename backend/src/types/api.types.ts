@@ -15,6 +15,7 @@ export interface EmployeeResponse {
   email: string;
   department: string;
   salary: number;
+  country?: string;
   createdAt: Date;
 }
 

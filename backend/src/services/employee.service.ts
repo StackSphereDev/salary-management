@@ -4,9 +4,9 @@ import {
   EmployeeListEntity,
   FindManyOptions,
 } from '../repositories/employee.repository';
-import { CreateEmployeeInput } from '../schemas/employee.schema';
+import { CreateEmployeeInput, UpdateEmployeeInput } from '../schemas/employee.schema';
 import { EmployeeResponse, ListEmployeesQuery, PaginatedResponse } from '../types/api.types';
-import { DatabaseError } from '../utils/error-handler';
+import { DatabaseError, NotFoundError } from '../utils/error-handler';
 import { Prisma } from '@prisma/client';
 
 export interface EmployeeListResponse {
@@ -148,6 +148,7 @@ export class EmployeeService {
       email: employee.email,
       department: employee.department,
       salary: employee.salary,
+      country: employee.country,
       createdAt: employee.createdAt,
     };
   }
@@ -167,5 +168,38 @@ export class EmployeeService {
       joiningDate: employee.joiningDate,
       createdAt: employee.createdAt,
     };
+  }
+
+  async updateEmployee(id: string, data: UpdateEmployeeInput): Promise<EmployeeResponse> {
+    try {
+      const existingEmployee = await this.repository.findById(id);
+      if (!existingEmployee) {
+        throw new NotFoundError(`Employee with id ${id} not found`);
+      }
+
+      const employee = await this.repository.update(id, data);
+      return this.mapToResponse(employee);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw new DatabaseError(error instanceof Error ? error.message : 'Failed to update employee');
+    }
+  }
+
+  async deleteEmployee(id: string): Promise<void> {
+    try {
+      const existingEmployee = await this.repository.findById(id);
+      if (!existingEmployee) {
+        throw new NotFoundError(`Employee with id ${id} not found`);
+      }
+
+      await this.repository.delete(id);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw new DatabaseError(error instanceof Error ? error.message : 'Failed to delete employee');
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { EmployeeService } from '../services/employee.service';
-import { CreateEmployeeInput } from '../schemas/employee.schema';
+import { CreateEmployeeInput, UpdateEmployeeInput } from '../schemas/employee.schema';
 import { TypedRequestBody, ListEmployeesQuery } from '../types/api.types';
 import { handleError } from '../utils/error-handler';
 
@@ -41,6 +41,29 @@ export class EmployeeController {
 
       const result = await this.service.listEmployees(query);
       return res.status(200).json(result);
+    } catch (error) {
+      return handleError(error, res);
+    }
+  };
+
+  updateEmployee = async (
+    req: TypedRequestBody<UpdateEmployeeInput>,
+    res: Response
+  ): Promise<Response> => {
+    try {
+      const { id } = req.params;
+      const employee = await this.service.updateEmployee(id, req.body);
+      return res.status(200).json(employee);
+    } catch (error) {
+      return handleError(error, res);
+    }
+  };
+
+  deleteEmployee = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { id } = req.params;
+      await this.service.deleteEmployee(id);
+      return res.status(204).send();
     } catch (error) {
       return handleError(error, res);
     }

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { EmployeeController } from '../controllers/employee.controller';
 import { validateRequest } from '../middleware/validation.middleware';
-import { createEmployeeSchema } from '../schemas/employee.schema';
-import { listEmployeesValidator } from '../validators/employee.validator';
+import { createEmployeeSchema, updateEmployeeSchema } from '../schemas/employee.schema';
+import { listEmployeesValidator, employeeIdValidator } from '../validators/employee.validator';
 import { validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
@@ -34,5 +34,24 @@ router.get(
 router.post('/employees', validateRequest(createEmployeeSchema), (req, res) => {
   void employeeController.createEmployee(req, res);
 });
+
+router.put(
+  '/employees/:id',
+  employeeIdValidator,
+  handleValidationErrors,
+  validateRequest(updateEmployeeSchema),
+  (req: Request, res: Response) => {
+    void employeeController.updateEmployee(req, res);
+  }
+);
+
+router.delete(
+  '/employees/:id',
+  employeeIdValidator,
+  handleValidationErrors,
+  (req: Request, res: Response) => {
+    void employeeController.deleteEmployee(req, res);
+  }
+);
 
 export default router;

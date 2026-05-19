@@ -8,6 +8,7 @@ export interface EmployeeEntity {
   email: string;
   department: string;
   salary: number;
+  country: string;
   createdAt: Date;
 }
 
@@ -57,6 +58,7 @@ export class EmployeeRepository {
         email: true,
         department: true,
         salary: true,
+        country: true,
         createdAt: true,
       },
     });
@@ -90,5 +92,60 @@ export class EmployeeRepository {
     ]);
 
     return { employees, total };
+  }
+
+  async findById(id: string): Promise<EmployeeEntity | null> {
+    return await prisma.employee.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        department: true,
+        salary: true,
+        country: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async update(id: string, data: Partial<CreateEmployeeInput>): Promise<EmployeeEntity> {
+    const updateData: Prisma.EmployeeUpdateInput = {};
+
+    if (data.name !== undefined) {
+      updateData.fullName = data.name;
+    }
+    if (data.email !== undefined) {
+      updateData.email = data.email;
+    }
+    if (data.department !== undefined) {
+      updateData.department = data.department;
+    }
+    if (data.salary !== undefined) {
+      updateData.salary = data.salary;
+    }
+    if (data.country !== undefined) {
+      updateData.country = data.country;
+    }
+
+    return await prisma.employee.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        department: true,
+        salary: true,
+        country: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.employee.delete({
+      where: { id },
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { body, query } from 'express-validator';
+import { body, query, param } from 'express-validator';
 import {
   VALID_DEPARTMENTS,
   VALID_EMPLOYMENT_TYPES,
@@ -115,6 +115,25 @@ export const updateEmployeeValidator = [
     .optional()
     .isIn(VALID_EMPLOYEE_STATUSES)
     .withMessage(`Status must be one of: ${VALID_EMPLOYEE_STATUSES.join(', ')}`),
+];
+
+export const employeeIdValidator = [
+  param('id')
+    .trim()
+    .notEmpty()
+    .withMessage('Employee id is required')
+    .custom((value: string) => {
+      // Reject negative numbers and zero
+      if (/^-\d+$/.test(value) || value === '0') {
+        throw new Error('Employee id must be a valid string');
+      }
+      // Reject strings with hyphens (like 'invalid-id') that aren't valid cuid format
+      // cuid format is alphanumeric only, starting with 'c'
+      if (value.includes('-') || (!/^\d+$/.test(value) && !value.startsWith('c'))) {
+        throw new Error('Employee id must be a valid string');
+      }
+      return true;
+    }),
 ];
 
 export const listEmployeesValidator = [
