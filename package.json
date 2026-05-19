@@ -1,0 +1,31 @@
+{
+  "name": "salary-management",
+  "version": "1.0.0",
+  "description": "Salary Management System - Monorepo",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "postinstall": "husky install || echo 'Husky not installed yet'",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:test": "cd backend && npm test",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "build": "npm run backend:build && npm run frontend:build",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "type-check": "npm run type-check --workspaces"
+  },
+  "keywords": ["salary", "management", "monorepo"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.2",
+    "concurrently": "^8.2.2"
+  }
+}
