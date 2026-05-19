@@ -119,4 +119,40 @@ router.get(
   }
 );
 
+router.get(
+  '/insights/analytics/total-payroll',
+  salaryInsightsQueryValidator,
+  handleValidationErrors,
+  (req: Request, res: Response, next: NextFunction) => {
+    void insightsController.getTotalPayroll(req, res, next);
+  }
+);
+
+router.get(
+  '/insights/analytics/employees-per-country',
+  salaryInsightsQueryValidator,
+  handleValidationErrors,
+  (req: Request, res: Response, next: NextFunction) => {
+    void insightsController.getEmployeesPerCountry(req, res, next);
+  }
+);
+
+router.get(
+  '/insights/analytics/department-salary-averages',
+  salaryInsightsQueryValidator,
+  handleValidationErrors,
+  (req: Request, res: Response, next: NextFunction) => {
+    void insightsController.getDepartmentSalaryAverages(req, res, next);
+  }
+);
+
+router.get(
+  '/insights/analytics/top-paying-departments',
+  topEarnersQueryValidator,
+  handleValidationErrors,
+  (req: Request, res: Response, next: NextFunction) => {
+    void insightsController.getTopPayingDepartments(req, res, next);
+  }
+);
+
 export default router;

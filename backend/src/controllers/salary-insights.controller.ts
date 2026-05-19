@@ -152,4 +152,68 @@ export class SalaryInsightsController {
       next(error);
     }
   };
+
+  getTotalPayroll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const payroll = await this.service.getTotalPayroll(req.query as any);
+
+      res.status(200).json({
+        success: true,
+        data: payroll,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getEmployeesPerCountry = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const employees = await this.service.getEmployeesPerCountry(req.query as any);
+
+      res.status(200).json({
+        success: true,
+        data: employees,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getDepartmentSalaryAverages = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const averages = await this.service.getDepartmentSalaryAverages(req.query as any);
+
+      res.status(200).json({
+        success: true,
+        data: averages,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getTopPayingDepartments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const departments = await this.service.getTopPayingDepartments(req.query as any);
+
+      res.status(200).json({
+        success: true,
+        data: departments,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

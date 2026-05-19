@@ -261,6 +261,87 @@ export class AggregationService {
     }
   }
 
+  async getTotalPayroll(where?: Prisma.EmployeeWhereInput): Promise<{
+    totalPayroll: number;
+    employeeCount: number;
+  }> {
+    const result = await this.prisma.employee.aggregate({
+      where,
+      _sum: { salary: true },
+      _count: true,
+    });
+
+    return {
+      totalPayroll: Math.round((result._sum.salary || 0) * 100) / 100,
+      employeeCount: result._count,
+    };
+  }
+
+  async getEmployeesPerCountry(
+    where?: Prisma.EmployeeWhereInput
+  ): Promise<Array<{ country: string; employeeCount: number }>> {
+    const results = await this.prisma.employee.groupBy({
+      by: ['country'],
+      where,
+      _count: true,
+      orderBy: { country: 'asc' },
+    });
+
+    return results
+      .map((result) => ({
+        country: result.country || 'Unknown',
+        employeeCount: result._count,
+      }))
+      .sort((a, b) => b.employeeCount - a.employeeCount);
+  }
+
+  async getDepartmentSalaryAverages(
+    where?: Prisma.EmployeeWhereInput
+  ): Promise<Array<{ department: string; averageSalary: number; employeeCount: number }>> {
+    const results = await this.prisma.employee.groupBy({
+      by: ['department'],
+      where,
+      _avg: { salary: true },
+      _count: true,
+      orderBy: { department: 'asc' },
+    });
+
+    return results.map((result) => ({
+      department: result.department || 'Unknown',
+      averageSalary: Math.round((result._avg.salary || 0) * 100) / 100,
+      employeeCount: result._count,
+    }));
+  }
+
+  async getTopPayingDepartments(
+    limit: number,
+    where?: Prisma.EmployeeWhereInput
+  ): Promise<
+    Array<{
+      department: string;
+      averageSalary: number;
+      totalPayroll: number;
+      employeeCount: number;
+    }>
+  > {
+    const results = await this.prisma.employee.groupBy({
+      by: ['department'],
+      where,
+      _avg: { salary: true },
+      _sum: { salary: true },
+      _count: true,
+      orderBy: { _avg: { salary: 'desc' } },
+      take: limit,
+    });
+
+    return results.map((result) => ({
+      department: result.department || 'Unknown',
+      averageSalary: Math.round((result._avg.salary || 0) * 100) / 100,
+      totalPayroll: Math.round((result._sum.salary || 0) * 100) / 100,
+      employeeCount: result._count,
+    }));
+  }
+
   async disconnect(): Promise<void> {
     await this.prisma.$disconnect();
   }

@@ -93,3 +93,28 @@ export interface GroupedAggregationResult extends AggregationResult {
   country?: string;
   employmentType?: string;
 }
+
+export interface TotalPayrollResponse {
+  totalPayroll: number;
+  employeeCount: number;
+  currency: string;
+}
+
+export interface EmployeesPerCountryResponse {
+  country: string;
+  employeeCount: number;
+  percentage: number;
+}
+
+export interface DepartmentSalaryAverageResponse {
+  department: string;
+  averageSalary: number;
+  employeeCount: number;
+}
+
+export interface TopPayingDepartmentResponse {
+  department: string;
+  averageSalary: number;
+  totalPayroll: number;
+  employeeCount: number;
+}

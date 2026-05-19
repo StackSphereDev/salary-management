@@ -13,6 +13,10 @@ import {
   SalaryTrendDataPoint,
   SalaryTrendQuery,
   SalaryStatistics,
+  TotalPayrollResponse,
+  EmployeesPerCountryResponse,
+  DepartmentSalaryAverageResponse,
+  TopPayingDepartmentResponse,
 } from '../types/insights.types';
 import { DatabaseError } from '../utils/error-handler';
 
@@ -287,5 +291,73 @@ export class SalaryInsightsService {
     }
 
     return where;
+  }
+
+  async getTotalPayroll(query: SalaryInsightsQuery): Promise<TotalPayrollResponse> {
+    try {
+      const where = this.buildWhereClause(query);
+      const result = await this.aggregationService.getTotalPayroll(where);
+
+      return {
+        totalPayroll: result.totalPayroll,
+        employeeCount: result.employeeCount,
+        currency: 'USD',
+      };
+    } catch (error) {
+      throw new DatabaseError(
+        error instanceof Error ? error.message : 'Failed to fetch total payroll'
+      );
+    }
+  }
+
+  async getEmployeesPerCountry(query: SalaryInsightsQuery): Promise<EmployeesPerCountryResponse[]> {
+    try {
+      const where = this.buildWhereClause(query);
+      const results = await this.aggregationService.getEmployeesPerCountry(where);
+
+      const totalEmployees = results.reduce((sum, r) => sum + r.employeeCount, 0);
+
+      return results.map((result) => ({
+        country: result.country,
+        employeeCount: result.employeeCount,
+        percentage:
+          totalEmployees > 0
+            ? Math.round((result.employeeCount / totalEmployees) * 10000) / 100
+            : 0,
+      }));
+    } catch (error) {
+      throw new DatabaseError(
+        error instanceof Error ? error.message : 'Failed to fetch employees per country'
+      );
+    }
+  }
+
+  async getDepartmentSalaryAverages(
+    query: SalaryInsightsQuery
+  ): Promise<DepartmentSalaryAverageResponse[]> {
+    try {
+      const where = this.buildWhereClause(query);
+      const results = await this.aggregationService.getDepartmentSalaryAverages(where);
+
+      return results;
+    } catch (error) {
+      throw new DatabaseError(
+        error instanceof Error ? error.message : 'Failed to fetch department salary averages'
+      );
+    }
+  }
+
+  async getTopPayingDepartments(query: TopEarnersQuery): Promise<TopPayingDepartmentResponse[]> {
+    try {
+      const where = this.buildWhereClause(query);
+      const limit = Math.min(query.limit || 10, 50);
+      const results = await this.aggregationService.getTopPayingDepartments(limit, where);
+
+      return results;
+    } catch (error) {
+      throw new DatabaseError(
+        error instanceof Error ? error.message : 'Failed to fetch top paying departments'
+      );
+    }
   }
 }
