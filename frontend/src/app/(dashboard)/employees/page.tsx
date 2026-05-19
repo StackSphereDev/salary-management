@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { EmployeeTable } from '@/components/employees/employee-table';
 
 export default function EmployeesPage() {
   return (
@@ -16,14 +16,7 @@ export default function EmployeesPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Employee List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Employee list will be displayed here</p>
-        </CardContent>
-      </Card>
+      <EmployeeTable />
     </div>
   );
 }
