@@ -1,5 +1,6 @@
 import prisma from '../config/database';
 import { CreateEmployeeInput } from '../schemas/employee.schema';
+import { Prisma } from '@prisma/client';
 
 export interface EmployeeEntity {
   id: string;
@@ -8,6 +9,33 @@ export interface EmployeeEntity {
   department: string;
   salary: number;
   createdAt: Date;
+}
+
+export interface EmployeeListEntity {
+  id: string;
+  fullName: string;
+  email: string;
+  department: string;
+  jobTitle: string;
+  country: string;
+  salary: number;
+  currency: string;
+  employmentType: string;
+  status: string;
+  joiningDate: Date;
+  createdAt: Date;
+}
+
+export interface FindManyOptions {
+  skip: number;
+  take: number;
+  where?: Prisma.EmployeeWhereInput;
+  orderBy?: Prisma.EmployeeOrderByWithRelationInput;
+}
+
+export interface FindManyResult {
+  employees: EmployeeListEntity[];
+  total: number;
 }
 
 export class EmployeeRepository {
@@ -19,7 +47,7 @@ export class EmployeeRepository {
         department: data.department,
         salary: data.salary,
         jobTitle: 'Default',
-        country: 'US',
+        country: data.country || 'US',
         joiningDate: new Date(),
         employmentType: 'FULL_TIME',
       },
@@ -32,5 +60,35 @@ export class EmployeeRepository {
         createdAt: true,
       },
     });
+  }
+
+  async findMany(options: FindManyOptions): Promise<FindManyResult> {
+    const { skip, take, where, orderBy } = options;
+
+    const [employees, total] = await prisma.$transaction([
+      prisma.employee.findMany({
+        skip,
+        take,
+        where,
+        orderBy,
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          department: true,
+          jobTitle: true,
+          country: true,
+          salary: true,
+          currency: true,
+          employmentType: true,
+          status: true,
+          joiningDate: true,
+          createdAt: true,
+        },
+      }),
+      prisma.employee.count({ where }),
+    ]);
+
+    return { employees, total };
   }
 }

@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 import {
   VALID_DEPARTMENTS,
   VALID_EMPLOYMENT_TYPES,
@@ -115,4 +115,60 @@ export const updateEmployeeValidator = [
     .optional()
     .isIn(VALID_EMPLOYEE_STATUSES)
     .withMessage(`Status must be one of: ${VALID_EMPLOYEE_STATUSES.join(', ')}`),
+];
+
+export const listEmployeesValidator = [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer').toInt(),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Page size must be between 1 and 100')
+    .toInt(),
+
+  query('sortBy')
+    .optional()
+    .isIn([
+      'fullName',
+      'email',
+      'department',
+      'salary',
+      'joiningDate',
+      'createdAt',
+      'country',
+      'status',
+      'name',
+    ])
+    .withMessage('Invalid sort field'),
+
+  query('order')
+    .optional()
+    .isIn(['asc', 'desc'])
+    .withMessage('Sort order must be either asc or desc'),
+
+  query('department').optional().trim(),
+
+  query('status').optional().trim(),
+
+  query('employmentType').optional().trim(),
+
+  query('country').optional().trim(),
+
+  query('search')
+    .optional({ values: 'falsy' })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Search term must be at most 100 characters'),
+
+  query('minSalary')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Minimum salary must be a positive number')
+    .toFloat(),
+
+  query('maxSalary')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Maximum salary must be a positive number')
+    .toFloat(),
 ];
