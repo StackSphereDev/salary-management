@@ -6,6 +6,7 @@ import compression from 'compression';
 import employeeRoutes from './routes/employee.routes';
 import salaryInsightsRoutes from './routes/salary-insights.routes';
 import { AppError } from './utils/error-handler';
+import { ensureDatabaseInitialized } from './utils/init-db';
 
 dotenv.config();
 
@@ -17,6 +18,19 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV === 'production') {
+    ensureDatabaseInitialized()
+      .then(() => next())
+      .catch((error) => {
+        console.error('Database initialization failed:', error);
+        res.status(500).json({ error: 'Database initialization failed' });
+      });
+  } else {
+    next();
+  }
+});
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
