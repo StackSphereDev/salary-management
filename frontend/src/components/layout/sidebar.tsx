@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, DollarSign, BarChart3, Settings, Menu, X } from 'lucide-react';
+import { Users, DollarSign, BarChart3, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -10,7 +10,6 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Employees', href: '/employees', icon: Users },
   { name: 'Salaries', href: '/salaries', icon: DollarSign },
-  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar() {

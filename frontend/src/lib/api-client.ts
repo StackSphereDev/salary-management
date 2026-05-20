@@ -32,7 +32,13 @@ class ApiClient {
         throw error;
       }
 
-      return response.json();
+      const json = await response.json();
+
+      if (json && typeof json === 'object' && 'success' in json && 'data' in json) {
+        return json.data as T;
+      }
+
+      return json as T;
     } catch (error) {
       if (error && typeof error === 'object' && 'status' in error) {
         throw error;
