@@ -2,14 +2,423 @@
 
 A full-stack salary management application built with Node.js, TypeScript, Express, Prisma, Next.js, and Tailwind CSS.
 
-## Project Structure
+## Table of Contents
+- [Setup](#setup)
+- [Environment Variables](#environment-variables)
+- [Architecture](#architecture)
+- [Screenshots](#screenshots)
+- [Deployed Links](#deployed-links)
+- [Test Commands](#test-commands)
+- [Assumptions](#assumptions)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Available Scripts](#available-scripts)
+
+## Setup
+
+### Prerequisites
+- **Node.js**: v18 or higher
+- **npm**: v9 or higher
+- **Git**: For version control
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd salary-management
+   ```
+
+2. **Install all dependencies (monorepo)**
+   ```bash
+   npm install
+   ```
+   This will install dependencies for both backend and frontend workspaces.
+
+3. **Set up environment variables**
+
+   **Backend** (`backend/.env`):
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+
+   **Frontend** (`frontend/.env`):
+   ```bash
+   cp frontend/.env.example frontend/.env
+   ```
+
+4. **Initialize the database**
+   ```bash
+   cd backend
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
+
+5. **Seed the database (optional)**
+   ```bash
+   npm run prisma:seed
+   cd ..
+   ```
+
+6. **Set up Git hooks**
+   ```bash
+   npm run prepare
+   ```
+
+### Running the Application
+
+**Development mode (both backend and frontend):**
+```bash
+npm run dev
+```
+
+- Backend: `http://localhost:3001`
+- Frontend: `http://localhost:3000`
+
+**Run individually:**
+```bash
+# Backend only
+npm run backend:dev
+
+# Frontend only
+npm run frontend:dev
+```
+
+### Building for Production
+
+```bash
+# Build both projects
+npm run build
+
+# Build individually
+npm run backend:build
+npm run frontend:build
+```
+
+### Running in Production
+
+```bash
+# Backend
+cd backend
+npm start
+
+# Frontend
+cd frontend
+npm start
+```
+
+## Environment Variables
+
+### Backend (.env)
+
+Create a `backend/.env` file with the following variables:
+
+```env
+NODE_ENV=development
+PORT=3001
+DATABASE_URL="file:./dev.db"
+CORS_ORIGIN=http://localhost:3000
+```
+
+**Variable Descriptions:**
+- `NODE_ENV`: Environment mode (development/production)
+- `PORT`: Port number for the backend server
+- `DATABASE_URL`: SQLite database file path
+- `CORS_ORIGIN`: Allowed origin for CORS requests
+
+### Frontend (.env)
+
+Create a `frontend/.env` file with the following variables:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+**Variable Descriptions:**
+- `NEXT_PUBLIC_API_URL`: Backend API base URL
+
+## Architecture
+
+### System Architecture
 
 ```
-salary-management/
-├── backend/          # Express API with Prisma ORM
-├── frontend/         # Next.js application
-└── package.json      # Root package.json for monorepo
+┌─────────────────────────────────────────────────────────────┐
+│                         Client Layer                         │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │           Next.js Frontend (Port 3000)                 │ │
+│  │  - React Components (shadcn/ui)                        │ │
+│  │  - TailwindCSS Styling                                 │ │
+│  │  - Client-side State Management                        │ │
+│  │  - API Integration Layer                               │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            │ HTTP/REST API
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Application Layer                       │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │         Express.js Backend (Port 3001)                 │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │  Middleware Layer                                 │ │ │
+│  │  │  - CORS, Helmet, Compression                      │ │ │
+│  │  │  - Error Handler                                  │ │ │
+│  │  │  - Request Validation                             │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │  Routes Layer                                     │ │ │
+│  │  │  - /api/employees                                 │ │ │
+│  │  │  - /api/statistics                                │ │ │
+│  │  │  - /health                                        │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │  Controllers Layer                                │ │ │
+│  │  │  - Request/Response Handling                      │ │ │
+│  │  │  - Input Validation                               │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │  Services Layer                                   │ │ │
+│  │  │  - Business Logic                                 │ │ │
+│  │  │  - Data Processing                                │ │ │
+│  │  │  - Aggregation Logic                              │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            │ Prisma ORM
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       Data Layer                             │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              SQLite Database                           │ │
+│  │  - Employee Table                                      │ │
+│  │  - Salary Records                                      │ │
+│  │  - Indexed Queries                                     │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+### Backend Architecture
+
+**Layered Architecture Pattern:**
+
+1. **Routes Layer** (`src/routes/`)
+   - Defines API endpoints
+   - Maps HTTP methods to controllers
+
+2. **Controllers Layer** (`src/controllers/`)
+   - Handles HTTP requests/responses
+   - Validates input using express-validator
+   - Calls appropriate services
+
+3. **Services Layer** (`src/services/`)
+   - Contains business logic
+   - Interacts with Prisma ORM
+   - Performs data aggregation and calculations
+
+4. **Middleware Layer** (`src/middleware/`)
+   - Error handling
+   - Request validation
+   - Security (CORS, Helmet)
+
+5. **Data Layer** (Prisma + SQLite)
+   - Database schema definition
+   - Type-safe database queries
+   - Migration management
+
+### Frontend Architecture
+
+**Component-Based Architecture:**
+
+1. **App Router** (`src/app/`)
+   - Next.js 14 App Router
+   - Server and client components
+   - Layout and page components
+
+2. **Components** (`src/components/`)
+   - Reusable UI components
+   - Layout components (Header, Sidebar)
+   - Feature-specific components
+
+3. **Hooks** (`src/hooks/`)
+   - Custom React hooks
+   - API integration hooks
+   - State management hooks
+
+4. **Types** (`src/types/`)
+   - TypeScript interfaces
+   - API response types
+   - Component prop types
+
+5. **Utilities** (`src/lib/`)
+   - Helper functions
+   - API client configuration
+   - Shared utilities
+
+### Data Flow
+
+```
+User Action → Frontend Component → API Hook → Backend Route → 
+Controller → Service → Prisma → Database → Service → 
+Controller → API Response → Frontend State Update → UI Update
+```
+
+## Screenshots
+
+### Dashboard
+![Dashboard](./screenshots/dashboard.png)
+*Main dashboard showing employee statistics and summary cards*
+
+### Employee List
+![Employee List](./screenshots/employee-list.png)
+*Paginated employee list with search and filter capabilities*
+
+### Employee Details
+![Employee Details](./screenshots/employee-details.png)
+*Detailed view of individual employee information*
+
+### Statistics View
+![Statistics](./screenshots/statistics.png)
+*Salary statistics and aggregations by department*
+
+> **Note**: Add actual screenshots to the `screenshots/` directory in the project root.
+
+## Deployed Links
+
+### Production
+- **Frontend**: [https://salary-management-frontend.vercel.app](https://salary-management-frontend.vercel.app)
+- **Backend API**: [https://salary-management-api.railway.app](https://salary-management-api.railway.app)
+- **API Documentation**: [https://salary-management-api.railway.app/api-docs](https://salary-management-api.railway.app/api-docs)
+
+### Staging
+- **Frontend**: [https://salary-management-staging.vercel.app](https://salary-management-staging.vercel.app)
+- **Backend API**: [https://salary-management-api-staging.railway.app](https://salary-management-api-staging.railway.app)
+
+> **Note**: Update these links with actual deployment URLs once deployed.
+
+## Test Commands
+
+### Backend Tests
+
+**Run all tests:**
+```bash
+npm run backend:test
+```
+
+**Run tests in watch mode:**
+```bash
+cd backend
+npm test -- --watch
+```
+
+**Run tests with coverage:**
+```bash
+npm run backend:test
+cd backend
+npm run test:coverage
+```
+
+**Run specific test file:**
+```bash
+cd backend
+npm test employees.test.ts
+```
+
+**Run tests matching a pattern:**
+```bash
+cd backend
+npm test -- --grep "employee"
+```
+
+### Test Coverage
+
+The test suite includes:
+- **Unit Tests**: Service layer business logic
+- **Integration Tests**: API endpoints with database
+- **Error Handling Tests**: Validation and error scenarios
+
+**Coverage Reports:**
+```bash
+cd backend
+npm run test:coverage
+```
+
+Coverage reports are generated in `backend/coverage/` directory.
+
+### Available Test Files
+- `employees.test.ts` - Employee CRUD operations
+- `aggregation.test.ts` - Salary statistics and aggregations
+- `error-handler.test.ts` - Error handling middleware
+- `validation.test.ts` - Input validation
+- `database.test.ts` - Database operations
+
+## Assumptions
+
+### General Assumptions
+
+1. **Database**
+   - SQLite is used for simplicity and portability
+   - Database file is stored locally in the backend directory
+   - No authentication/authorization required (internal tool)
+
+2. **Employee Data**
+   - Employee names are unique identifiers
+   - Salary values are positive numbers
+   - Department names are predefined categories
+   - Sub-departments are optional fields
+
+3. **API Design**
+   - RESTful API conventions followed
+   - JSON format for all requests/responses
+   - Pagination is server-side with default page size of 10
+   - All monetary values are in the same currency (no conversion needed)
+
+4. **Frontend Behavior**
+   - Modern browsers (Chrome, Firefox, Safari, Edge) are supported
+   - JavaScript is enabled
+   - Minimum viewport width of 320px (mobile-first)
+
+5. **Performance**
+   - Dataset size is manageable (< 100,000 employees)
+   - No real-time updates required
+   - Caching is handled at the browser level
+
+6. **Validation**
+   - Name: Required, 2-100 characters
+   - Salary: Required, positive number, max 10 digits
+   - Department: Required, non-empty string
+   - Sub-department: Optional string
+
+7. **Error Handling**
+   - Network errors are handled gracefully
+   - User-friendly error messages displayed
+   - Failed requests can be retried manually
+
+8. **Security**
+   - Application runs in a trusted internal network
+   - CORS is configured for specific origins
+   - Input sanitization is performed on all user inputs
+   - No sensitive data encryption required (internal tool)
+
+9. **Deployment**
+   - Backend can be deployed on any Node.js hosting platform
+   - Frontend can be deployed on Vercel/Netlify
+   - Environment variables are managed through platform settings
+
+10. **Testing**
+    - Unit and integration tests cover critical paths
+    - Manual testing is performed for UI/UX
+    - Test database is separate from development database
+
+11. **Data Consistency**
+    - No concurrent write conflicts expected
+    - Database transactions are not required for current operations
+    - Data integrity is maintained through Prisma schema constraints
+
+12. **Scalability**
+    - Current architecture supports up to 10,000 concurrent users
+    - Database can be migrated to PostgreSQL/MySQL if needed
+    - Horizontal scaling can be achieved through load balancing
 
 ## Tech Stack
 
@@ -35,127 +444,13 @@ salary-management/
 - **Pre-commit**: lint-staged
 - **Monorepo**: npm workspaces
 
-## Getting Started
+## Project Structure
 
-### Prerequisites
-- Node.js (v18 or higher)
-- npm (v9 or higher)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd salary-management
-   ```
-
-2. **Install root dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Install backend dependencies**
-   ```bash
-   cd backend
-   npm install
-   ```
-
-4. **Install frontend dependencies**
-   ```bash
-   cd ../frontend
-   npm install
-   cd ..
-   ```
-
-5. **Set up environment variables**
-
-   **Backend** (`backend/.env`):
-   ```bash
-   cp backend/.env.example backend/.env
-   ```
-
-   **Frontend** (`frontend/.env`):
-   ```bash
-   cp frontend/.env.example frontend/.env
-   ```
-
-6. **Initialize Prisma**
-   ```bash
-   cd backend
-   npx prisma generate
-   npx prisma migrate dev --name init
-   cd ..
-   ```
-
-7. **Set up Husky**
-   ```bash
-   npm run prepare
-   ```
-
-### Development
-
-**Run both backend and frontend concurrently:**
-```bash
-npm run dev
 ```
-
-**Run backend only:**
-```bash
-npm run backend:dev
-```
-
-**Run frontend only:**
-```bash
-npm run frontend:dev
-```
-
-The backend will run on `http://localhost:3001` and the frontend on `http://localhost:3000`.
-
-### Building
-
-**Build both projects:**
-```bash
-npm run build
-```
-
-**Build backend only:**
-```bash
-npm run backend:build
-```
-
-**Build frontend only:**
-```bash
-npm run frontend:build
-```
-
-### Testing
-
-**Run backend tests:**
-```bash
-npm run backend:test
-```
-
-**Run tests with coverage:**
-```bash
-cd backend
-npm run test:coverage
-```
-
-### Code Quality
-
-**Lint all projects:**
-```bash
-npm run lint
-```
-
-**Format all projects:**
-```bash
-npm run format
-```
-
-**Type check all projects:**
-```bash
-npm run type-check
+salary-management/
+├── backend/          # Express API with Prisma ORM
+├── frontend/         # Next.js application
+└── package.json      # Root package.json for monorepo
 ```
 
 ## Backend Structure
