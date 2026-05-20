@@ -286,15 +286,11 @@ Controller → API Response → Frontend State Update → UI Update
 ## Deployed Links
 
 ### Production
-- **Frontend**: [https://salary-management-frontend.vercel.app](https://salary-management-frontend.vercel.app)
-- **Backend API**: [https://salary-management-api.railway.app](https://salary-management-api.railway.app)
-- **API Documentation**: [https://salary-management-api.railway.app/api-docs](https://salary-management-api.railway.app/api-docs)
+- **Frontend**: [https://salary-management-frontend-mocha.vercel.app](https://salary-management-frontend-mocha.vercel.app)
+- **Backend API**: [https://salary-management-backend.vercel.app](https://salary-management-backend.vercel.app)
+- **Health Check**: [https://salary-management-backend.vercel.app/health](https://salary-management-backend.vercel.app/health)
 
-### Staging
-- **Frontend**: [https://salary-management-staging.vercel.app](https://salary-management-staging.vercel.app)
-- **Backend API**: [https://salary-management-api-staging.railway.app](https://salary-management-api-staging.railway.app)
-
-> **Note**: Update these links with actual deployment URLs once deployed.
+> **Note**: Application is fully deployed and functional on Vercel.
 
 ## Test Commands
 
